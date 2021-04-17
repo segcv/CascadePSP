@@ -7,7 +7,24 @@ from models.sync_batchnorm import SynchronizedBatchNorm2d
 
 
 class PSPModule(nn.Module):
+    """
+    PSP模块的结构图如下:
+                    |-- avg_pool(1) -- conv2d(features, features)--|
+                    |                                              |
+                    |-- avg_pool(2) -- conv2d(features, features)--|      concat
+             f.m. --|                                              |------- + --> conv2d(features*5, features) --> relu
+               |    |-- avg_pool(3) -- conv2d(features, features)--|        |
+               |    |                                              |        |
+               |    |-- avg_pool(6) -- conv2d(features, features)--|        |
+               |                                                            |
+               |------------------------------------------------------------|
+    """
     def __init__(self, features, out_features=1024, sizes=(1, 2, 3, 6)):
+        """
+             :param features: 输入的通道数
+             :param out_features: 输出的通道数
+             :param sizes: stage的大小
+        """
         super().__init__()
         self.stages = []
         self.stages = nn.ModuleList([self._make_stage(features, size) for size in sizes])
@@ -28,7 +45,20 @@ class PSPModule(nn.Module):
 
 
 class PSPUpsample(nn.Module):
+    """
+                                                       |--------------|
+    up -----------------------------|            sum   |              |
+                            concat  + -- conv --- + ------>  conv2 -- + --> out
+    f.m x -- interpolate 2倍--------|             |                  sum
+       |                                          |
+       |--- conv2d(x_ch,out_ch,3,1) --------------|
+    """
     def __init__(self, x_channels, in_channels, out_channels):
+        """
+        :param x_channels:
+        :param in_channels:
+        :param out_channels:
+        """
         super().__init__()
         self.conv = nn.Sequential(
             SynchronizedBatchNorm2d(in_channels),
