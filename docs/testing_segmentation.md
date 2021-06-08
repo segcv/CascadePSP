@@ -14,7 +14,7 @@ Our test script expects the following structure:
   - imagename_im.jpg
 ```
 
-Where `_gt`, `_seg`, and `_im` denote the input segmentation, ground-truth segmentation, and RGB image respectively. Segmentations should be in binary format (i.e. only one object at a time).
+Where `_seg`, `_gt`, and `_im` denote the input segmentation, ground-truth segmentation, and RGB image respectively. Segmentations should be in binary format (i.e. only one object at a time).
 
 ## Testing
 
